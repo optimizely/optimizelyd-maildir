@@ -1,0 +1,8 @@
+[package]
+name = "share-queue"
+version = "0.1.0"
+authors = ["Thomas Zurkan <thomas.zurkan@optimizely.com>"]
+
+[dependencies]
+libc = "0.2.24"
+mmap = "0.1.1"
