@@ -66,10 +66,11 @@ impl MaildirQueue {
         let filename = format!("{:?}", SystemTime::now());
         let tmp_path = self.baseDir.clone().as_str().to_owned() + "/" + TEMP + "/" + filename.as_str();
         let new_path = self.baseDir.clone().as_str().to_owned() + "/" + NEW + "/" + filename.as_str();
-        let mut f = File::create(&tmp_path).expect("Couldn’t open file");
-        f.write_all(requestBody.as_bytes()).expect("Couldn’t write body ");
+        if let Ok(mut f) = File::create(&tmp_path) {
+            f.write_all(requestBody.as_bytes());
 
-        f.sync_data().expect("Couldn’t sync");
+            f.sync_data();
+        }
 
         fs::rename(Path::new(&tmp_path), Path::new(&new_path)); // Rename a.txt to b.txt
         
