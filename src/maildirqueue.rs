@@ -1,6 +1,10 @@
 use std::*;
 use std::collections::HashSet;
 use std::fs::*;
+use std::path::Path;
+use std::time::SystemTime;
+use std::fs::File;
+use std::io::prelude::*;
 
 static CURRENT: &'static str = "cur";
 static TEMP: &'static str = "tmp";
@@ -55,5 +59,23 @@ impl MaildirQueue {
             }
         }
         return Some(&self)
+    }
+
+    pub fn push(&self, requestBody:&str) -> bool {
+        let filename = format!("{:?}", SystemTime::now());
+        let tmp_path = self.baseDir.clone().as_str().to_owned() + "/" + TEMP + "/" + filename.as_str();
+        let new_path = self.baseDir.clone().as_str().to_owned() + "/" + NEW + "/" + filename.as_str();
+        let mut f = File::create(&tmp_path).expect("Couldn’t open file");
+        f.write_all(requestBody.as_bytes()).expect("Couldn’t write body ");
+
+        f.sync_data().expect("Couldn’t sync");
+
+        fs::rename(Path::new(&tmp_path), Path::new(&new_path)); // Rename a.txt to b.txt
+        
+        true
+    }
+
+    pub fn pop(&self) -> &str {
+        "test"
     }
 }

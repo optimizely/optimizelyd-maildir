@@ -14,5 +14,8 @@ extern crate libc;
 
 fn main() {
     let mailDirQue = MaildirQueue::new(".".to_string());
-    mailDirQue.init();
+    if let Some(ref mailDirQue) = mailDirQue.init() {
+        mailDirQue.push("This is example file");
+        println!("Pushed");
+    }
 }
