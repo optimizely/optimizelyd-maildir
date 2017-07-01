@@ -17,5 +17,10 @@ fn main() {
     if let Some(ref mailDirQue) = mailDirQue.init() {
         mailDirQue.push("This is example file");
         println!("Pushed");
+        let closure = |content:&str|-> bool { println!("{:?}", content); return true; };
+
+        while mailDirQue.pop(&closure) {
+            println!("Popped");
+        }
     }
 }

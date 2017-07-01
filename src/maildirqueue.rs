@@ -4,6 +4,7 @@ use std::fs::*;
 use std::path::Path;
 use std::time::SystemTime;
 use std::fs::File;
+use std::io::BufReader;
 use std::io::prelude::*;
 
 static CURRENT: &'static str = "cur";
@@ -75,7 +76,28 @@ impl MaildirQueue {
         true
     }
 
-    pub fn pop(&self) -> &str {
-        "test"
+    pub fn pop(&self, callback:&Fn(&str) -> bool) -> bool {
+         let new_path = self.baseDir.clone().as_str().to_owned() + "/" + NEW;
+         if let Ok(mut entries) = fs::read_dir(new_path) {
+             if let Some(entry) = entries.next() {
+                   let entry = entry.unwrap();
+                   let file_name = entry.file_name();
+                   let cur_path = self.baseDir.clone().as_str().to_owned() + "/" + CURRENT + "/" + file_name.to_str().unwrap();
+                   fs::rename(entry.path(), Path::new(&cur_path)); // Rename a.txt to b.txt
+                
+                   if let Ok(file) = File::open(&cur_path) {
+                        let mut buf_reader = BufReader::new(file);
+                        let mut contents = String::new();
+                        buf_reader.read_to_string(&mut contents);
+                        if callback(contents.as_str()) {
+                            fs::remove_file(&cur_path);
+                            return true;
+                        }
+                   }
+
+             }
+         }
+         return false;
     }
+
 }
