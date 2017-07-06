@@ -50,8 +50,14 @@ impl JsonSender {
         let post = client.request(req);
         let res = core.run(post);
         match res {
-            Ok(res) => return Ok(true),
-            Err(e) =>  return Err("Problem sending request"),
+            Ok(res) => {
+                println!("{:?}", res); 
+                return Ok(true); 
+            },
+            Err(e) =>  {
+                println!("{:?}", e); 
+                return Err("Problem sending request");
+            },
         };
 
     }
