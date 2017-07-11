@@ -10,8 +10,8 @@ use jsonsender::JsonSender;
 fn main() {
     let sender = JsonSender::new();
     let mailDirQue = MaildirQueue::new(".".to_string());
-    if let Some(ref mailDirQue) = mailDirQue.init() {
-        let json = r#"{"url": "https://www.google.com/search", "requestBody": "q=bill+material&output=xml&client=test&site=operations&access=p"}"#;
+    if let Some(ref mailDirQue) = mailDirQue.init() {        
+    let json = r#"{"url": "https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+San+Francisco&key=AIzaSyBlN50lqg06I76C4r8-Ac_XXanS1qsDoDQ"}"#;
         let mut isClient:bool = false;
         let args: Vec<_> = env::args().collect();
         if args.len() > 1 {
