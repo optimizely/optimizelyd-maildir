@@ -11,7 +11,7 @@ fn main() {
     let sender = JsonSender::new();
     let mailDirQue = MaildirQueue::new(".".to_string());
     if let Some(ref mailDirQue) = mailDirQue.init() {        
-    let json = r#"{"url": "https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+San+Francisco&key=AIzaSyBlN50lqg06I76C4r8-Ac_XXanS1qsDoDQ"}"#;
+    let json = r#"{"url": "https://cdn.optimizely.com/json/8395320081.json"}"#;
         let mut isClient:bool = false;
         let args: Vec<_> = env::args().collect();
         if args.len() > 1 {

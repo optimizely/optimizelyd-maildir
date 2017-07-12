@@ -48,8 +48,9 @@ impl JsonSender {
             .connector(HttpsConnector::new(4, &handle).unwrap())
             .build(&handle);
         let value:Value = serde_json::from_str(jsonString).unwrap();
-        let uri =  format!("{}", value["url"]).parse();
-        let mut req:Request = Request::new(Method::Post, uri.unwrap());
+        let uri =  value["url"].as_str().unwrap().clone().to_owned();
+        let url =  uri.parse();
+        let mut req:Request = Request::new(Method::Post, url.unwrap());
         if !value["requestBody"].is_null() {
             let body = format!("{}", value["requestBody"]);
             req.headers_mut().set(ContentType::json());
@@ -69,6 +70,8 @@ impl JsonSender {
                       println!("Getting body");
                       let bodyiter =  res.body().concat2().wait().unwrap();
                       io::stdout().write_all(&bodyiter);
+                      println!("Got body");
+                      
                       return Ok(true);
                 }
                 else {
