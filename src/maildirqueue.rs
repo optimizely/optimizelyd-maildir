@@ -72,7 +72,7 @@ impl MaildirQueue {
             f.sync_data();
         }
 
-        fs::rename(Path::new(&tmp_path), Path::new(&new_path)); // Rename a.txt to b.txt
+        fs::rename(Path::new(&tmp_path), Path::new(&new_path)); // Rename from tmp to new
         
         true
     }
@@ -84,7 +84,7 @@ impl MaildirQueue {
                    let entry = entry.unwrap();
                    let file_name = entry.file_name();
                    let cur_path = self.baseDir.clone().as_str().to_owned() + "/" + CURRENT + "/" + file_name.to_str().unwrap();
-                   fs::rename(entry.path(), Path::new(&cur_path)); // Rename a.txt to b.txt
+                   fs::rename(entry.path(), Path::new(&cur_path)); // Rename from new to cur directory
                 
                    if let Ok(file) = File::open(&cur_path) {
                         let mut buf_reader = BufReader::new(file);

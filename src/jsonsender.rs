@@ -25,8 +25,6 @@ use self::url::Url;
 use self::hyper::Client;
 use self::hyper::Uri;
 use self::hyper_tls::HttpsConnector;
-//use self::hyper_tls::HttpsConnector;
-//use self::hyper::client::HttpConnector;
 use self::tokio_core::reactor::Core;
 use self::serde_json::{Value, Error};
 
@@ -37,6 +35,7 @@ pub struct JsonSender {
 impl JsonSender {
     pub fn new() -> JsonSender {
         JsonSender {
+            
         }
     }
     
@@ -67,11 +66,12 @@ impl JsonSender {
             Ok(res) => {
                 if res.status().is_success() {
                       println!("{:?}", res); 
-                      println!("Getting body");
-                      let bodyiter =  res.body().concat2().wait().unwrap();
-                      io::stdout().write_all(&bodyiter);
-                      println!("Got body");
-                      
+                      if !value["requestBody"].is_null() {
+                        println!("Getting body");
+                        let bodyiter =  res.body().concat2().wait().unwrap();
+                        io::stdout().write_all(&bodyiter);
+                        println!("Got body");
+                      }
                       return Ok(true);
                 }
                 else {
