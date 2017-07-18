@@ -9,20 +9,20 @@ use jsonsender::JsonSender;
 
 fn main() {
     let sender = JsonSender::new();
-    let mailDirQue = MaildirQueue::new(".".to_string());
-    if let Some(ref mailDirQue) = mailDirQue.init() {        
+    let mail_dir_que = MaildirQueue::new(".".to_string());
+    if let Some(ref mail_dir_que) = mail_dir_que.init() {        
     let json = r#"{"url": "https://cdn.optimizely.com/json/8395320081.json"}"#;
-        let mut isClient:bool = false;
+        let mut is_client:bool = false;
         let args: Vec<_> = env::args().collect();
         if args.len() > 1 {
            println!("The first argument is {}", args[1]);
-           isClient = true;
+           is_client = true;
         }
 
-        if isClient {
+        if is_client {
             let mut count = 0;
             loop {
-                mailDirQue.push(&json);
+                mail_dir_que.push(&json);
                 println!("Pushed");
                 count += 1;
                 if count == 1000 {
@@ -31,10 +31,18 @@ fn main() {
             }
         }
         else {
-            let closure = |content:&str|-> bool { println!("{:?}", content); sender.sendJson(&json); return true; };
+            let closure = |content:&str|-> bool { 
+                println!("{:?}", content); 
+                if let Err(err_str) = sender.sendJson(&json) {
+                    println!("{}", err_str);
+                    println!("Problem with sending json, requeuing");
+                    mail_dir_que.push(&json); 
+                }
+                return true; 
+            };
             let mut count = 0;
             loop {
-                while mailDirQue.pop(&closure) {
+                while mail_dir_que.pop(&closure) {
                     println!("Popped");
                 }   
                 count += 1;

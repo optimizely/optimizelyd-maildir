@@ -12,23 +12,23 @@ static TEMP: &'static str = "tmp";
 static NEW: &'static str = "new";
 const VALIDDIRS: [&'static str; 3] = ["tmp", "new", "cur"]; // or ["Apples", "Oranges"]
 pub struct MaildirQueue {
-    baseDir:String,
+    base_dir:String,
 }
 
 impl MaildirQueue {
     pub fn new(dir:String) -> MaildirQueue {
         MaildirQueue {
-            baseDir : dir
+            base_dir : dir
         }
     }
 
     pub fn init(&self) -> Option<&MaildirQueue> {
-        let mut maildirCount = 0;
+        let mut maildir_count = 0;
         let mut set = HashSet::new();
-        let baseDir = self.baseDir.clone();
-        if let Ok(entries) = fs::read_dir(baseDir) {
+        let base_dir = self.base_dir.clone();
+        if let Ok(entries) = fs::read_dir(base_dir) {
             for entry in entries {
-                    maildirCount += 1;
+                    maildir_count += 1;
                     if let Ok(entry) = entry {       
                         if let Ok(file_type) = entry.file_type() {
                            let file_name = entry.file_name();
@@ -44,14 +44,14 @@ impl MaildirQueue {
             }
 
             if set.len() != 3 {
-                if maildirCount > set.len() {
+                if maildir_count > set.len() {
                     println!("Directory should not have extra entries in it!");
                     return None
                 }
                 // create appropriate folders
-                for dirName in VALIDDIRS.iter() {
-                    if !set.contains(dirName) {
-                        let new_path = self.baseDir.clone().as_str().to_owned() + "/" + dirName;
+                for dir_name in VALIDDIRS.iter() {
+                    if !set.contains(dir_name) {
+                        let new_path = self.base_dir.clone().as_str().to_owned() + "/" + dir_name;
                         DirBuilder::new()
                             .recursive(true)
                                 .create(new_path).unwrap();
@@ -62,12 +62,12 @@ impl MaildirQueue {
         return Some(&self)
     }
 
-    pub fn push(&self, requestBody:&str) -> bool {
+    pub fn push(&self, request_body:&str) -> bool {
         let filename = format!("{:?}", SystemTime::now());
-        let tmp_path = self.baseDir.clone().as_str().to_owned() + "/" + TEMP + "/" + filename.as_str();
-        let new_path = self.baseDir.clone().as_str().to_owned() + "/" + NEW + "/" + filename.as_str();
+        let tmp_path = self.base_dir.clone().as_str().to_owned() + "/" + TEMP + "/" + filename.as_str();
+        let new_path = self.base_dir.clone().as_str().to_owned() + "/" + NEW + "/" + filename.as_str();
         if let Ok(mut f) = File::create(&tmp_path) {
-            f.write_all(requestBody.as_bytes());
+            f.write_all(request_body.as_bytes());
 
             f.sync_data();
         }
@@ -78,12 +78,12 @@ impl MaildirQueue {
     }
 
     pub fn pop(&self, callback:&Fn(&str) -> bool) -> bool {
-         let new_path = self.baseDir.clone().as_str().to_owned() + "/" + NEW;
+         let new_path = self.base_dir.clone().as_str().to_owned() + "/" + NEW;
          if let Ok(mut entries) = fs::read_dir(new_path) {
              if let Some(entry) = entries.next() {
                    let entry = entry.unwrap();
                    let file_name = entry.file_name();
-                   let cur_path = self.baseDir.clone().as_str().to_owned() + "/" + CURRENT + "/" + file_name.to_str().unwrap();
+                   let cur_path = self.base_dir.clone().as_str().to_owned() + "/" + CURRENT + "/" + file_name.to_str().unwrap();
                    fs::rename(entry.path(), Path::new(&cur_path)); // Rename from new to cur directory
                 
                    if let Ok(file) = File::open(&cur_path) {
