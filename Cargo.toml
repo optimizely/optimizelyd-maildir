@@ -1,5 +1,5 @@
 [package]
-name = "share-queue"
+name = "optimizelyd-maildir"
 version = "0.1.0"
 authors = ["Thomas Zurkan <thomas.zurkan@optimizely.com>"]
 
