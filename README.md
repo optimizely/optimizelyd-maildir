@@ -11,15 +11,10 @@ For these reasons, the [Rust](https://www.rust-lang.org/en-US/) programming lang
 ## Background
 The queue is based on the lockless maildir queue.  The maildir queue file structure is shown below:
 
-`
-basedir/
-
-    tmp/
-
-    new/
-
-    cur/
-`
+    basedir/
+        tmp/
+        new/
+        cur/
 
 https://en.wikipedia.org/wiki/Maildir
 
