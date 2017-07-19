@@ -4,10 +4,15 @@ This is another approach to implementing optimizelyd as a maildir queue implemen
 
 * since it uses the filesystem, it is very transparent and also easy to understand from an ops perspective.  
 * it is very easy to scale via nfs mount (there can be several queue writers but only one queue consumer at this time). 
-* unquestionable **speed**; and
-* hardened **security**.
-
+* it uses os calls.
 For these reasons, the [Rust](https://www.rust-lang.org/en-US/) programming language was chosen for implementation.
+
+## Background
+The queue is based on the lockes maildir queue.  The maildir queue file structure is shown below:
+![Maildir structure](https://en.wikipedia.org/wiki/Maildir#/media/File:Maildir.png)
+
+https://en.wikipedia.org/wiki/Maildir
+
 
 ## Project status
 
