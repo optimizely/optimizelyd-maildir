@@ -4,8 +4,9 @@ This is another approach to implementing optimizelyd as a maildir queue implemen
 
 * since it uses the filesystem, it is very transparent and also easy to understand from an ops perspective.  
 * it is very easy to scale via nfs mount.
-* it is easy to scale with process as well since there can be several queue writers and several queue consumers at this time. 
+* it is easy to scale with process as well since there can be several queue writers and several queue consumers at the same time. 
 * it uses os calls.
+
 For these reasons, the [Rust](https://www.rust-lang.org/en-US/) programming language was chosen for implementation.
 
 ## Background
