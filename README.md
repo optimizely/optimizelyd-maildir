@@ -3,22 +3,23 @@
 This is another approach to implementing optimizelyd as a maildir queue implementation.  Right now, it is a very generic maildir queue consumer that takes files from new moves them to cur, sends them via json if a request body was provided.  If there is no request body it is sent as a GET.  The response is read but not consumed at this point. The queued items are json human readable files that contain a url and a request body.
 
 * since it uses the filesystem, it is very transparent and also easy to understand from an ops perspective.  
-* it is very easy to scale via nfs mount (there can be several queue writers but only one queue consumer at this time). 
+* it is very easy to scale via nfs mount.
+* it is easy to scale with process as well since there can be several queue writers and several queue consumers at this time. 
 * it uses os calls.
 For these reasons, the [Rust](https://www.rust-lang.org/en-US/) programming language was chosen for implementation.
 
 ## Background
 The queue is based on the lockless maildir queue.  The maildir queue file structure is shown below:
-
+`
 basedir/
   |
   |______tmp/
   |______new/
   |______cur/
-
+`
 https://en.wikipedia.org/wiki/Maildir
 
-The idea is that the client creates a unique filename (the one caveat) in tmp and then moves the file to new. That is a `push`.  
+The idea is that the client creates a unique filename (the one caveat) in tmp and then moves the file to new. File move is an atomic operation on all operating systems.  That is a `push` onto the queue.  
 The optimizelyd-maildir picks up a file from new and moves it to cur, then the file is read and passed to the jsonsender to send.  That is the `pop`.
 
 ## Project status
