@@ -8,16 +8,23 @@ This is another approach to implementing optimizelyd as a maildir queue implemen
 For these reasons, the [Rust](https://www.rust-lang.org/en-US/) programming language was chosen for implementation.
 
 ## Background
-The queue is based on the lockes maildir queue.  The maildir queue file structure is shown below:
-![Maildir structure](https://en.wikipedia.org/wiki/Maildir#/media/File:Maildir.png)
+The queue is based on the lockless maildir queue.  The maildir queue file structure is shown below:
+
+basedir/
+  |
+  |______tmp/
+  |______new/
+  |______cur/
 
 https://en.wikipedia.org/wiki/Maildir
 
+The idea is that the client creates a unique filename (the one caveat) in tmp and then moves the file to new. That is a `push`.  
+The optimizelyd-maildir picks up a file from new and moves it to cur, then the file is read and passed to the jsonsender to send.  That is the `pop`.
 
 ## Project status
 
 * `src/` contains implementation of the maildirqueue, the jsonsender, and the main module to drive the consuming.
-* `examples/` contains a sample maildirqueue directory.  You can test by running ../optimizelyd-maildir client for client test and leave off the client if you want the server side.  
+* `examples/` contains a sample maildirqueue directory.  You can test by running `../optimizelyd-maildir client` for client test and leave off the client `..\optimizelyd-maildir` if you want the server side. 
 
 ## Building
 

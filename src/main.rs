@@ -8,8 +8,8 @@ use maildirqueue::MaildirQueue;
 use jsonsender::JsonSender;
 
 fn main() {
-    let sender = JsonSender::new();
-    let mail_dir_que = MaildirQueue::new(".".to_string());
+    let sender = Box::new(JsonSender::new());
+    let mail_dir_que = Box::new(MaildirQueue::new(".".to_string()));
     if let Some(ref mail_dir_que) = mail_dir_que.init() {        
     let json = r#"{"url": "https://cdn.optimizely.com/json/8395320081.json"}"#;
         let mut is_client:bool = false;
