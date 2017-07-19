@@ -13,9 +13,12 @@ The queue is based on the lockless maildir queue.  The maildir queue file struct
 
 `
 basedir/
-  tmp/
-  new/
-  cur/
+
+    tmp/
+
+    new/
+
+    cur/
 `
 
 https://en.wikipedia.org/wiki/Maildir
