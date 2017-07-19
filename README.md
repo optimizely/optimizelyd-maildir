@@ -10,13 +10,14 @@ For these reasons, the [Rust](https://www.rust-lang.org/en-US/) programming lang
 
 ## Background
 The queue is based on the lockless maildir queue.  The maildir queue file structure is shown below:
+
 `
 basedir/
-  |
-  |______tmp/
-  |______new/
-  |______cur/
+  tmp/
+  new/
+  cur/
 `
+
 https://en.wikipedia.org/wiki/Maildir
 
 The idea is that the client creates a unique filename (the one caveat) in tmp and then moves the file to new. File move is an atomic operation on all operating systems.  That is a `push` onto the queue.  
