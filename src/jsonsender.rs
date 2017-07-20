@@ -8,6 +8,10 @@ extern crate serde_json;
 extern crate url;
 
 use std::os::raw::c_char;
+use std::time::SystemTime;
+use std::fs::File;
+use std::io::BufReader;
+use std::io::prelude::*;
 
 use jsonsender::hyper::Body;
 use jsonsender::hyper::Chunk;
@@ -38,7 +42,7 @@ impl JsonSender {
         }
     }
     
-    pub fn sendJson(&self, jsonString:&str) -> Result<bool, &str> {
+    pub fn sendJson(&self, jsonString:&str, res_path:&str) -> Result<bool, &str> {
     
         let mut core = Core::new().unwrap();
         let handle = core.handle();
@@ -67,12 +71,17 @@ impl JsonSender {
                 Ok(res) => {
                     if res.status().is_success() {
                         println!("{:?}", res); 
-                        // this is basically for testing right now.
-                        // we haven't setup for http get yet
+                        // if there was no request body then it was sent as a get. 
+                        // we get the response and move it to the res directory.
                         if value["requestBody"].is_null() {
                             println!("Getting body");
                             let bodyiter =  res.body().concat2().wait().unwrap();
-                            io::stdout().write_all(&bodyiter);
+                            //io::stdout().write_all(&bodyiter);
+                            let filename = format!("{}{:?}", res_path, SystemTime::now());
+                            if let Ok(mut f) = File::create(&filename) {
+                                f.write_all(&bodyiter);
+                                f.sync_data();
+                            }
                             println!("Got body");
                         }
                         return Ok(true);

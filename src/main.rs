@@ -33,14 +33,11 @@ fn main() {
         else {
             let closure = |content:&str|-> bool { 
                 println!("{:?}", content); 
-                if let Err(err_str) = sender.sendJson(&content) {
+                if let Err(err_str) = sender.sendJson(&content, "./res/") {
                     println!("{}", err_str);
                     println!("Problem with sending json, requeuing");
                     return false; 
                 }
-                // we always return true here which means remove the file.
-                // that means that we keep track of it and when to move it to doa
-                // false will cause it to be requeued.
                 return true; 
             };
             let mut count = 0;
