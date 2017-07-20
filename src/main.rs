@@ -11,7 +11,7 @@ fn main() {
     let sender = Box::new(JsonSender::new());
     let mail_dir_que = Box::new(MaildirQueue::new(".".to_string()));
     if let Some(ref mail_dir_que) = mail_dir_que.init() {        
-    let json = r#"{"url": "https://cdn.optimizely.com/json/8395320081.json"}"#;
+    let json = r#"{"url": "https://p13nlog.dz.optimizely.com/log/event", "requestBody": {"visitorId": "", "clientVersion": "1.0.0", "clientEngine": "python-sdk", "userFeatures": [], "projectId": "8395320081", "isGlobalHoldback": false, "eventEntityId": "8398160520", "eventName": "gotvariation", "eventFeatures": [], "eventMetrics": [], "timestamp": 1500509066875, "layerStates": [{"decision": {"variationId": "8398471060", "isLayerHoldback": false, "experimentId": "8391751517"}, "actionTriggered": true, "layerId": "8394600779"}], "accountId": "8362480420"}}"#;
         let mut is_client:bool = false;
         let args: Vec<_> = env::args().collect();
         if args.len() > 1 {
@@ -33,10 +33,10 @@ fn main() {
         else {
             let closure = |content:&str|-> bool { 
                 println!("{:?}", content); 
-                if let Err(err_str) = sender.sendJson(&json) {
+                if let Err(err_str) = sender.sendJson(&content) {
                     println!("{}", err_str);
                     println!("Problem with sending json, requeuing");
-                    mail_dir_que.push(&json); 
+                    mail_dir_que.push(&content); 
                 }
                 return true; 
             };
@@ -49,7 +49,7 @@ fn main() {
                 let ten_secs = time::Duration::from_secs(10);
                 thread::sleep(ten_secs);
                 if count > 1 {
-                    break;
+                    //break;
                 }
             }
             println!("Decided to give up... no more in the queue");
