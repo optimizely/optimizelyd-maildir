@@ -97,7 +97,7 @@ impl MaildirQueue {
              if let Some(entry) = entries.next() {
                    let entry = entry.unwrap();
                    let file_name = entry.file_name();
-                   let cur_path = self.base_dir.clone().as_str().to_owned() + "/" + CURRENT + "/" + file_name.to_str().unwrap();
+                   let cur_path = self.base_dir.clone().as_str().to_owned() + "/" + CURRENT + "/" + format!("{:?}", SystemTime::now()).as_str();
                    fs::rename(entry.path(), Path::new(&cur_path)); // Rename from new to cur directory
                 
                    if let Ok(file) = File::open(&cur_path) {
