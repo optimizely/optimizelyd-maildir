@@ -7,10 +7,12 @@ use std::fs::File;
 use std::io::BufReader;
 use std::io::prelude::*;
 
-static CURRENT: &'static str = "cur";
-static TEMP: &'static str = "tmp";
-static NEW: &'static str = "new";
-const VALIDDIRS: [&'static str; 3] = ["tmp", "new", "cur"]; // or ["Apples", "Oranges"]
+static TEMP: &'static str = "tmp"; // file is opened and written to here.
+static NEW: &'static str = "new"; // next it is moved onto the queue by being moved to new
+static CURRENT: &'static str = "cur"; // the pop takes a file from new and moves it to cur, then it opens the file in cur and excutes the closure. If the move failed the pop should just move to the next file. this allowing for multiple queue consumers.
+static DOA: &'static str = "doa"; // dead on arrival, this can be used to move messages that have been popped too many times.
+static RES: &'static str = "res"; // using the queue for a request/response area, give the user a place to move responses.
+const VALIDDIRS: [&'static str; 5] = ["tmp", "new", "cur", "doa", "res"]; // or ["Apples", "Oranges"]
 pub struct MaildirQueue {
     base_dir:String,
 }
@@ -43,7 +45,7 @@ impl MaildirQueue {
                     }
             }
 
-            if set.len() != 3 {
+            if set.len() != VALIDDIRS.len() {
                 if maildir_count > set.len() {
                     println!("Directory should not have extra entries in it!");
                     return None
@@ -62,10 +64,10 @@ impl MaildirQueue {
         return Some(&self)
     }
 
-    pub fn push(&self, request_body:&str) -> bool {
-        let filename = format!("{:?}", SystemTime::now());
-        let tmp_path = self.base_dir.clone().as_str().to_owned() + "/" + TEMP + "/" + filename.as_str();
-        let new_path = self.base_dir.clone().as_str().to_owned() + "/" + NEW + "/" + filename.as_str();
+    fn moveFile(&self, request_body:&str, from:&str, to:&str, suffix:Option<&str>) -> bool {
+        let filename = format!("{:?}", SystemTime::now()) + if let Some(suf) = suffix { suf } else { "" };
+        let tmp_path = self.base_dir.clone().as_str().to_owned() + "/" + from + "/" + filename.as_str();
+        let new_path = self.base_dir.clone().as_str().to_owned() + "/" + to + "/" + filename.as_str();
         if let Ok(mut f) = File::create(&tmp_path) {
             f.write_all(request_body.as_bytes());
 
@@ -75,6 +77,18 @@ impl MaildirQueue {
         fs::rename(Path::new(&tmp_path), Path::new(&new_path)); // Rename from tmp to new
         
         true
+    }
+    pub fn push(&self, request_body:&str) -> bool {
+       
+        return self.moveFile(request_body, TEMP, NEW, None);
+    }
+
+    pub fn doa(&self, request_body:&str) -> bool {
+        return self.moveFile(request_body, TEMP, DOA, None);
+    }
+
+    pub fn res(&self, request_body:&str) -> bool {
+        return self.moveFile(request_body, TEMP, RES, None);
     }
 
     pub fn pop(&self, callback:&Fn(&str) -> bool) -> bool {
@@ -93,6 +107,23 @@ impl MaildirQueue {
                         if callback(contents.as_str()) {
                             fs::remove_file(&cur_path);
                             return true;
+                        }
+                        else {
+                            fs::remove_file(&cur_path);
+                            let fname = file_name.to_str().unwrap();
+
+                            if fname.ends_with("count3") {
+                                self.doa(contents.as_str());
+                            }
+                            else if fname.ends_with("count2") {
+                                self.moveFile(contents.as_str(), TEMP, NEW, Some("count3"));
+                            }
+                            else if fname.ends_with("count1") {
+                                self.moveFile(contents.as_str(), TEMP, NEW, Some("count2"));
+                            }
+                            else {
+                                self.moveFile(contents.as_str(), TEMP, NEW, Some("count1"));
+                            }
                         }
                    }
 
