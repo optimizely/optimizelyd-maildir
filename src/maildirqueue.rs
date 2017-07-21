@@ -100,7 +100,8 @@ impl MaildirQueue {
              if let Some(entry) = entries.next() {
                    let entry = entry.unwrap();
                    let file_name = entry.file_name();
-                   let cur_path = self.base_dir.clone().as_str().to_owned() + "/" + CURRENT + "/" + format!("{}", Uuid::new_v4()).as_str();
+                   let file_name_str = file_name.to_str().unwrap();
+                   let cur_path = self.base_dir.clone().as_str().to_owned() + "/" + CURRENT + "/" + format!("{}", Uuid::new_v4()).as_str() + if file_name_str.ends_with("count1") { "count1" } else if file_name_str.ends_with("count2") { "count2"} else if file_name_str.ends_with("count3") { "count3" } else { "" };
                    fs::rename(entry.path(), Path::new(&cur_path)); // Rename from new to cur directory
                 
                    if let Ok(file) = File::open(&cur_path) {
