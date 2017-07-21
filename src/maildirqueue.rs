@@ -97,7 +97,23 @@ impl MaildirQueue {
     pub fn pop(&self, callback:&Fn(&str) -> bool) -> bool {
          let new_path = self.base_dir.clone().as_str().to_owned() + "/" + NEW;
          if let Ok(mut entries) = fs::read_dir(new_path) {
-             if let Some(entry) = entries.next() {
+             if let Some(entry) = entries.min_by(|x, y| {
+                                                 if let Ok(xx) = x.as_ref() {
+                                                    if let Ok(yy) = y.as_ref() {
+                                                        if let Ok(metax) = xx.metadata() {
+                                                            if let Ok(modx) = metax.modified() {
+                                                                if let Ok(metay) = yy.metadata() {
+                                                                    if let Ok(mody) = metay.modified() {
+                                                                        return mody.cmp(&modx);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                 }
+                                                 println!("returning equal");
+                                                 return cmp::Ordering::Equal; 
+             }) {
                    let entry = entry.unwrap();
                    let file_name = entry.file_name();
                    let file_name_str = file_name.to_str().unwrap();
