@@ -14,6 +14,9 @@ fn main() {
     let child2 = thread::spawn(move || {
        startServer("."); 
     });
+    let child3 = thread::spawn(move || {
+       startServer("."); 
+    });
 
     startServer(".");
 }

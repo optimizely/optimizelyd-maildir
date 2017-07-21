@@ -1,3 +1,5 @@
+extern crate uuid;
+
 use std::*;
 use std::collections::HashSet;
 use std::fs::*;
@@ -6,6 +8,7 @@ use std::time::SystemTime;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::prelude::*;
+use self::uuid::Uuid;
 
 static TEMP: &'static str = "tmp"; // file is opened and written to here.
 static NEW: &'static str = "new"; // next it is moved onto the queue by being moved to new
@@ -65,7 +68,7 @@ impl MaildirQueue {
     }
 
     fn moveFile(&self, request_body:&str, from:&str, to:&str, suffix:Option<&str>) -> bool {
-        let filename = format!("{:?}", SystemTime::now()) + if let Some(suf) = suffix { suf } else { "" };
+        let filename = format!("{}", Uuid::new_v4()) + if let Some(suf) = suffix { suf } else { "" };
         let tmp_path = self.base_dir.clone().as_str().to_owned() + "/" + from + "/" + filename.as_str();
         let new_path = self.base_dir.clone().as_str().to_owned() + "/" + to + "/" + filename.as_str();
         if let Ok(mut f) = File::create(&tmp_path) {
@@ -97,7 +100,7 @@ impl MaildirQueue {
              if let Some(entry) = entries.next() {
                    let entry = entry.unwrap();
                    let file_name = entry.file_name();
-                   let cur_path = self.base_dir.clone().as_str().to_owned() + "/" + CURRENT + "/" + format!("{:?}", SystemTime::now()).as_str();
+                   let cur_path = self.base_dir.clone().as_str().to_owned() + "/" + CURRENT + "/" + format!("{}", Uuid::new_v4()).as_str();
                    fs::rename(entry.path(), Path::new(&cur_path)); // Rename from new to cur directory
                 
                    if let Ok(file) = File::open(&cur_path) {
