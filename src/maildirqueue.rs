@@ -104,7 +104,7 @@ impl MaildirQueue {
                                                             if let Ok(modx) = metax.modified() {
                                                                 if let Ok(metay) = yy.metadata() {
                                                                     if let Ok(mody) = metay.modified() {
-                                                                        return mody.cmp(&modx);
+                                                                        return modx.cmp(&mody);
                                                                     }
                                                                 }
                                                             }
